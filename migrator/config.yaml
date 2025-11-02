@@ -1,0 +1,21 @@
+# config.yaml
+src:
+  type: aws
+  bucket: my-source-bucket
+  region: us-east-1
+
+target:
+  endpoint: https://new-s3.example.com
+  bucket: my-target-bucket
+
+general:
+  max_workers: 8
+  multipart_threshold: 50 * 1024 * 1024  # 50 MB
+  temp_dir: /tmp/s3_migrator
+  dry_run: false
+  exclude_prefixes: ["tmp/", "cache/"]
+  db_path: /var/lib/s3_migrator/migrate.db
+  log_file: /var/log/s3_migrator.log
+  retry_attempts: 5
+  backoff_base: 2
+  compute_checksum: true

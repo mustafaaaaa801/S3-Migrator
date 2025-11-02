@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+boto3
+boto3-stubs
+sqlmodel
+pydantic
+celery[redis]
+redis

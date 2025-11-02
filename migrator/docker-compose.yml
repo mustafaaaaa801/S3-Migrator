@@ -1,0 +1,52 @@
+version: '3.9'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: migrator_rabbitmq
+    ports:
+      - "5672:5672"   # المنفذ الداخلي للاتصال
+      - "15672:15672" # واجهة الإدارة
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - migrator_net
+
+  backend:
+    build: ./backend
+    container_name: migrator_backend
+    ports:
+      - "5000:5000"
+    environment:
+      - AWS_ACCESS_KEY=YOUR_KEY
+      - AWS_SECRET_KEY=YOUR_SECRET
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    networks:
+      - migrator_net
+
+  frontend:
+    build: ./frontend
+    container_name: migrator_frontend
+    ports:
+      - "80:80"
+    networks:
+      - migrator_net
+
+  worker:
+    build: ./worker
+    container_name: migrator_worker
+    environment:
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=rpc://
+    depends_on:
+      - rabbitmq
+      - backend
+    networks:
+      - migrator_net
+
+networks:
+  migrator_net:
+    driver: bridge
